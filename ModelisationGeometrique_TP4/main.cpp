@@ -53,9 +53,9 @@ GLvoid initGL()
 	glLightfv(GL_LIGHT0, GL_POSITION, qaLightPosition);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, qaSpecularLight);
 
-	//glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.5f);
-	//glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.f);
-	//glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01f);
+	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.5f);
+	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.f);
+	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01f);
 }
 
 void init_scene()
@@ -71,26 +71,26 @@ void init_scene()
 	//std::vector<Vec3<float>> normales = mesh.getNormales();
 	std::vector<unsigned int> indices = mesh.getIndices();
 
-	// Génération des buffers
-	glGenBuffers(3, buffers);
+	//// Génération des buffers
+	//glGenBuffers(3, buffers);
 
-	buffers = new GLuint[3];
+	//buffers = new GLuint[3];
 
-	buffers[0] = 1;
-	buffers[1] = 2;
-	buffers[2] = 3;
+	//buffers[0] = 1;
+	//buffers[1] = 2;
+	//buffers[2] = 3;
 
-	// Buffer d'informations de vertex
-	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
+	//// Buffer d'informations de vertex
+	//glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
 
-	// Buffer d'indices
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices.data(), GL_STATIC_DRAW);
+	//// Buffer d'indices
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices.data(), GL_STATIC_DRAW);
 
-	// Buffer de textures
-	glBindBuffer(GL_TEXTURE_BUFFER, buffers[2]);
-	glBufferData(GL_TEXTURE_BUFFER, sizeof(colors), colors.data(), GL_STATIC_DRAW);
+	//// Buffer de textures
+	//glBindBuffer(GL_TEXTURE_BUFFER, buffers[2]);
+	//glBufferData(GL_TEXTURE_BUFFER, sizeof(colors), colors.data(), GL_STATIC_DRAW);
 }
 
 // fonction de call-back pour l´affichage dans la fenêtre
@@ -277,6 +277,7 @@ void traceMaillage()
 			a = faces[i].x;
 			b = faces[i].y;
 			c = faces[i].z;
+
 			glTexCoord3f(textures[facesTextures[i].x].x, textures[facesTextures[i].x].y, textures[facesTextures[i].x].z);
 			glVertex3f(points[a].x, points[a].y, points[a].z);
 
