@@ -49,52 +49,18 @@ namespace MeshWriter
 		std::vector<Vec3<float>> normales = obj.getNormales();
 		std::vector<Vec3<unsigned int>> facesTextures = obj.getFacesTextures();
 		std::vector<Vec3<unsigned int>> facesNormales = obj.getFacesNormales();
-
+		std::vector<Vec2<unsigned int>> arretes = obj.getArretes();
 
 		std::ofstream file(filename);
-		for (unsigned int i = 0; i < points.size(); i++)
-			file << "v " << points[i].x << " " << points[i].y << " " << points[i].z << std::endl;
-		for (unsigned int i = 0; i < textures.size(); i++)
-			file << "vt " << textures[i].x << " " << textures[i].y << " " << textures[i].z << std::endl;
-		for (unsigned int i = 0; i < normales.size(); i++)
-			file << "vn " << normales[i].x << " " << normales[i].y << " " << normales[i].z << std::endl;
 
-		if (facesTextures.size() > 0 && facesNormales.size() > 0)
-		{
-			for (unsigned int i = 0; i < faces.size(); i++)
-			{
-				file << "f " << faces[i].x << "/" << facesTextures[i].x << "/" << facesNormales[i].x
-					<< " " << faces[i].y << "/" << facesTextures[i].y << "/" << facesNormales[i].y
-					<< " " << faces[i].z << "/" << facesTextures[i].z << "/" << facesNormales[i].z << std::endl;
-			}
-		}
-		else if (facesTextures.size() > 0)
-		{
-			for (unsigned int i = 0; i < faces.size(); i++)
-			{
-				file << "f " << faces[i].x << "/" << facesTextures[i].x
-					<< " " << faces[i].y << "/" << facesTextures[i].y
-					<< " " << faces[i].z << "/" << facesTextures[i].z << std::endl;
-			}
-		}
-		else if (facesNormales.size() > 0)
-		{
-			for (unsigned int i = 0; i < faces.size(); i++)
-			{
-				file << "f " << faces[i].x << "//" << facesNormales[i].x
-					<< " " << faces[i].y << "//" << facesNormales[i].y
-					<< " " << faces[i].z << "//" << facesNormales[i].z << std::endl;
-			}
-		}
-		else
-		{
-			for (unsigned int i = 0; i < faces.size(); i++)
-			{
-				file << "f " << faces[i].x
-					<< " " << faces[i].y
-					<< " " << faces[i].z << std::endl;
-			}
-		}
+		file << "OFF" << std::endl;
+		file << points.size() << " " << faces.size() << " " << arretes.size() << std::endl;
+
+		for (unsigned int i = 0; i < points.size(); i++)
+			file << points[i].x << " " << points[i].y << " " << points[i].z << std::endl;
+		for (unsigned int i = 0; i < faces.size(); i++)
+			file << "3 " << faces[i].x << " " << faces[i].y << " " << faces[i].z << std::endl;
+
 		file.close();
 	}
 
@@ -137,13 +103,13 @@ namespace MeshWriter
 				}
 				else if (line_nb > debut)
 				{
-					if (line_nb < debut + nb_sommets) // Points
+					if (line_nb <= debut + nb_sommets) // Points
 					{
 						std::vector<std::string> s = split(line, ' ');
 						points.push_back(Vec3<float>(std::stof(s[0]), std::stof(s[1]), std::stof(s[2])));
 
 					}
-					else if (line_nb < debut + nb_sommets + nb_faces) // Faces
+					else if (line_nb <= debut + nb_sommets + nb_faces) // Faces
 					{
 						std::vector<std::string> s = split(line, ' ');
 						n = std::stoi(s[0]);

@@ -48,14 +48,9 @@ GLvoid initGL()
 	glEnable(GL_LIGHT0);
 
 	//// Set lighting intensity and color
-	glLightfv(GL_LIGHT0, GL_AMBIENT, qaAmbientLight);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, qaDiffuseLight);
-	glLightfv(GL_LIGHT0, GL_POSITION, qaLightPosition);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, qaSpecularLight);
-
-	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.5f);
-	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.f);
-	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.01f);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
+	glLightfv(GL_LIGHT0, GL_POSITION, position);
 }
 
 void init_scene()
@@ -64,7 +59,7 @@ void init_scene()
 	mode_fill = true;
 	mode_texture = true;
 	dist = -7.0;
-	changeMesh();
+	printf("Mesh : %s\n", changeMesh());
 	
 	std::vector<float> colors = mesh.getColors();
 	std::vector<float> vertices = mesh.getVertices();
@@ -148,8 +143,17 @@ GLvoid window_key(unsigned char key, int x, int y)
 		if (mode_rendu > 2)
 			mode_rendu = 0;
 		break;
+	case 's':
+	case 'S':
+		MeshWriter::exportObj(mesh, "new.off");
+		printf("Export mesh vers 'new.off'");
+		break;
+	case 'd':
+	case 'D':
+		mesh.removeFace();
+		break;
 	case 32: // 'Espace'
-		changeMesh();
+		printf("Mesh : %s\n", changeMesh());
 		break;
 	default:
 		printf("La touche %d n´est pas active.\n", key);
@@ -226,31 +230,41 @@ void render_scene()
 	traceMaillage();
 }
 
-void changeMesh()
+std::string changeMesh()
 {
+	std::string m = "";
+
 	switch (num_mesh)
 	{
 	case 0:
-		mesh = MeshWriter::importObj("buddha.off");
+		m = "max.off";
 		break;
 	case 1:
-		mesh = MeshWriter::importObj("bunny.off");
+		m = "new.off";
 		break;
 	case 2:
-		mesh = MeshWriter::importObj("max.off");
+		m = "triceratops.off";
 		break;
 	case 3:
-		mesh = MeshWriter::importObj("triceratops.off");
+		m = "bunny.off";
 		break;
 	case 4:
-		mesh = MeshWriter::importObj("new.off");
+		m = "buddha.off";
 		break;
 	}
+
+	mesh = MeshWriter::importObj(m);
 
 	if (num_mesh < 4)
 		num_mesh++;
 	else
 		num_mesh = 0;
+
+	printf("\nNb faces : %d\n", mesh.getFaces().size());
+	printf("Nb points : %d\n", mesh.getPoints().size());
+	printf("Nb segments : %d\n", mesh.getArretes().size());
+
+	return m;
 }
 
 void traceMaillage()
@@ -262,8 +276,8 @@ void traceMaillage()
 	std::vector<Vec3<float>> textures = mesh.getTextures();
 	std::vector<float> colors = mesh.getColors();
 	std::vector<float> vertices = mesh.getVertices();
-	std::vector<Vec3<float>> normales = mesh.getNormales();
 	std::vector<unsigned int> indices = mesh.getIndices();
+	std::vector<Vec3<float>> normales = mesh.getNormales();
 
 	int a, b, c;
 
@@ -271,19 +285,22 @@ void traceMaillage()
 	{
 	case 0:
 		glBegin(GL_TRIANGLES);
-		glColor3f(150., 150., 150.);
+
 		for (int i = 0; i < faces.size(); i++)
 		{
 			a = faces[i].x;
 			b = faces[i].y;
 			c = faces[i].z;
 
+			glNormal3f(normales[a].x, normales[a].y, normales[a].z);
 			glTexCoord3f(textures[facesTextures[i].x].x, textures[facesTextures[i].x].y, textures[facesTextures[i].x].z);
 			glVertex3f(points[a].x, points[a].y, points[a].z);
 
+			glNormal3f(normales[b].x, normales[b].y, normales[b].z);
 			glTexCoord3f(textures[facesTextures[i].y].x, textures[facesTextures[i].y].y, textures[facesTextures[i].y].z);
 			glVertex3f(points[b].x, points[b].y, points[b].z);
 
+			glNormal3f(normales[c].x, normales[c].y, normales[c].z);
 			glTexCoord3f(textures[facesTextures[i].z].x, textures[facesTextures[i].z].y, textures[facesTextures[i].z].z);
 			glVertex3f(points[c].x, points[c].y, points[c].z);
 		}
@@ -294,7 +311,9 @@ void traceMaillage()
 	case 1:
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glEnableClientState(GL_NORMAL_ARRAY);
 
+		glNormalPointer(GL_FLOAT, 0, normales.data());
 		glVertexPointer(3, GL_FLOAT, 0, vertices.data());
 		glTexCoordPointer(3, GL_FLOAT, 0, colors.data());
 
@@ -306,23 +325,35 @@ void traceMaillage()
 
 	case 2:
 		// Utilisation des données des buffers
-		glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
-		glVertexPointer(3, GL_FLOAT, 3 * sizeof(float), NULL);
+		//glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+		//glVertexPointer(3, GL_FLOAT, 3 * sizeof(float), NULL);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);
-		glTexCoordPointer(3, GL_FLOAT, 3 * sizeof(float), NULL);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[1]);
+		//glTexCoordPointer(3, GL_FLOAT, 3 * sizeof(float), NULL);
 
-		glBindBuffer(GL_TEXTURE_BUFFER, buffers[2]);
+		//glBindBuffer(GL_TEXTURE_BUFFER, buffers[2]);
 
-		// Activation d'utilisation des tableaux
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
+		//// Activation d'utilisation des tableaux
+		//glEnableClientState(GL_VERTEX_ARRAY);
+		//glEnableClientState(GL_COLOR_ARRAY);
 
-		// Rendu de notre géométrie
-		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_VERTEX_ARRAY);
+		//// Rendu de notre géométrie
+		//glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+		//glDisableClientState(GL_COLOR_ARRAY);
+		//glDisableClientState(GL_VERTEX_ARRAY);
 		break;
 	}
-	
+}
+
+void printCommandes()
+{
+	printf("=== Commandes ===\n\n");
+	printf(" A / Z : zoom\n");
+	printf(" F : mode fill\n");
+	printf(" T : mode texture\n");
+	printf(" R : changer de maillage\n");
+	printf(" S : export mesh\n");
+	printf(" D : supprimer une face");
+	printf(" Espace : augmenter l'angle de rotation des objets de 10 degres\n");
+	printf(" Echap : quitter\n");
 }

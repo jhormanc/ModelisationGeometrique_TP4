@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <time.h>
 
 /*
 * classe representant un Mesh
@@ -25,7 +26,7 @@ class Mesh
 	/*
 	* Vecteur des faces du mesh, contenant les indices des coordonnees des normales
 	*/
-	std::vector<Vec3<unsigned int>> facesNormales;
+	std::vector<Vec3<unsigned int>> facesNormalesIndex;
 	/*
 	* Vecteur des coordonnees de textures du mesh
 	*/
@@ -45,11 +46,17 @@ class Mesh
 	std::vector<float> vertices;
 	std::vector<float> colors;
 	std::vector<unsigned int> indices;
+	std::vector<Vec3<float>> facesNormales;
+	std::vector<Vec3<float>> verticesNormales;
 
 public:
 	Mesh();
 	Mesh(std::vector<Vec3<float>> points_, std::vector<Vec3<unsigned int>> faces_, std::vector<Vec3<unsigned int>> facesTextures_, std::vector<Vec3<unsigned int>> facesNormales_, std::vector<Vec3<float>> textures_, std::vector<Vec3<float>> normales_, std::vector<Vec2<unsigned int>> arretes_);
 	Mesh(const Mesh & mesh);
+
+	void calculateNormals();
+	void calculateArrays();
+	void removeFace();
 
 	std::vector<Vec3<float>> getPoints() const;
 	std::vector<Vec3<unsigned int>> getFaces() const;
@@ -61,7 +68,7 @@ public:
 	std::vector<float> getColors() const;
 	std::vector<unsigned int> getIndices() const;
 	std::vector<float> getVertices() const;
-
+	std::vector<Vec2<unsigned int>> getArretes() const;
 
 	~Mesh();
 };

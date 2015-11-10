@@ -1,10 +1,11 @@
 #pragma once
 
-#include "GL/glew.h"
-#include "GL/glut.h"    
+
+#include "GL/freeglut.h"    
 #include <stdio.h>      
 #include <stdlib.h>     
 #include <math.h>
+#include <string>
 #include "MeshWriter.h"
 
 #define WIDTH  800
@@ -13,21 +14,17 @@
 #define RED   0
 #define GREEN 0
 #define BLUE  0
-#define ALPHA 1
+#define ALPHA 0
 #define PI 3.14159
 
 #define KEY_ESC 27
 
-// Set lighting intensity and color
-GLfloat qaAmbientLight[] = { 0.1, 0.1, 0.1, 1.0 };
-GLfloat qaDiffuseLight[] = { 1.0, 1.0, 1.0, 1.0 };
-GLfloat qaSpecularLight[] = { 1.0, 1.0, 1.0, 1.0 };
-GLfloat emitLight[] = { 0.9, 0.9, 0.9, 0.01 };
-GLfloat Noemit[] = { 0.0, 0.0, 0.0, 1.0 };
+GLfloat ambient[] = { 0.0, 0.0, 1.0, 1.0 };
+GLfloat diffuse[] = { 0.9, 0.9, 0.2, 1.0 };
+GLfloat position[] = { 0.0, 3.0, 3.0, 0.0 };
 
-// Light source position
-GLfloat qaLightPosition[] = { 0, 0, 0, 1 }; // Positional Light
-GLfloat qaLightDirection[] = { 10, 10, 10, 0 }; // Directional Light
+GLfloat specular[] = { 1.0, 1.0, 0.5, 1.0 };
+GLfloat shininess[] = { 100.0 };
 
 Mesh mesh;
 int num_mesh = 0;
@@ -49,5 +46,5 @@ GLvoid window_mouse_click(int button, int state, int x, int y);
 GLvoid window_mouse(int x, int y);
 GLvoid window_idle();
 void rotateBy(int x, int y, int z);
-void changeMesh();
+std::string changeMesh();
 void traceMaillage();
